@@ -1,6 +1,9 @@
 import React from 'react'
 
-export const App = () => {
+interface IApp {
+
+} 
+export const App:React.FC<IApp> = ({}) => {
   return (
     <div>
       function component 
