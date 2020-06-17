@@ -18,7 +18,7 @@ type NativeLinkProps = IButton & React.AnchorHTMLAttributes<HTMLElement>;
 
 type ButtonProps = Partial<NativeButtonProps & NativeLinkProps>;
 
-export const Button: React.FC<ButtonProps> = ({
+export const AppButton: React.FC<ButtonProps> = ({
   className,
   disabled,
   size,
@@ -54,7 +54,7 @@ export const Button: React.FC<ButtonProps> = ({
   );
 };
 
-Button.defaultProps = {
+AppButton.defaultProps = {
   btnType: ButtonType.Primary,
   disabled: false,
 };

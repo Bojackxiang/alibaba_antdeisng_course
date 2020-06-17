@@ -1,145 +1,121 @@
-### Final Goal: create a button component 
+## Part 1: using jest in the for the button
 
-### Sub-target 1 under stand how the sass and its features 
+<b>Jest is embedded in the react project\* so, you do not need to reinstall it. </b>
 
-### Sub-target 2 Understand the test and how to test a component 
+create a file with jest.test.js, and you can run it with,
 
-## Note
-The react dose not support the SASS, so we need to use the node-sass 
-
-``` javascript
-npm install node-sass --save
-```
-or 
-``` javascript
-yarn add node-sass --save
-```
-in _variables.scss
-``` scss
-$gray-100: #f8f9fa !default;
-```
-<b>!default: When user have same parameter name, the new value wont add to the default value </b>
-<br>
-<b>当用户重新设定这个$grey-color值之后, 不会再重新赋值</b>
-
-Interview Question: What is the different between the rm and rem ? 
-https://developer.mozilla.org/en-US/docs/Learn/CSS/Building_blocks/Values_and_units
-
-### introduction to Normalize.css -- _reboot.css
-https://necolas.github.io/normalize.css/
-
-``` scss
-%heading {
-  margin-top: 0; // 1
-  margin-bottom: $headings-margin-bottom;
-  font-family: $headings-font-family;
-  font-style: $headings-font-style;
-  font-weight: $headings-font-weight;
-  line-height: $headings-line-height;
-  color: $headings-color;
-}
-h1 {
-  @extend %heading;
-  font-size: $h1-font-size;
-}
-```
-@extend: combine different styles into one block
-@extend: 将多个code组合到一个block中
-
-## Scss 的import 命令
-you don't need the under score when you import the scss value in the index.scss 
-``` scss 
-// config
-@import "variables";
-
-//layout
-@import "reboot";
-
-//mixin
-@import "mixin";
-
-// animation
-@import "animation";
-// button
-```
-You only need to do sth like above 
-<br/>
-the _ means the <b>partial</b>, you cannot use it in the read project, you can <b>only import</b> it 
-
-<br>
-
-```javascript 
-import './styles/index.scss'
-```
-finally, import the index.scss in the index.tsx file, then you can try p tag, h1 tag and so on to test. 
-<br>
-the font should change 
-
-## Started to work on the button.tsx component, you can check the component for code
-
-## create a style for a component: button/_style.scss 
-
-import the _style.scss into the index.scss 
-
-## understand the @mixin in the scss 
-create the _mixin.scss in the /styles
-<br>
-creating a mixin as an example. you can see it as a function 
-
-```javascript 
-@mixin button-size($padding-y, $padding-x, $font-size, $border-raduis) {
-  padding: $padding-y $padding-x;
-  font-size: $font-size;
-  border-radius: $border-raduis;
-}
+```javascript
+npx test jest.test.js
 ```
 
-the way to use it in the _styles.scss
-``` javascript
-.btn {
-  @include button-size( $btn-padding-y,  $btn-padding-x,  $btn-font-size,  $border-radius);
-}
+the jest will go and find your file automatically
+
+you can find the detail test code in the button.test.js
+
+following are four basic testing case
+
+```javascript
+/**
+ * sample test
+ */
+test("common matcher", () => {
+  expect(2 + 2).toBe(4);
+  expect(1 + 1).not.toBe(1);
+});
+
+test("true and false", () => {
+  expect(1).toBeTruthy();
+  expect(0).toBeFalsy();
+});
+
+test("less and greater", () => {
+  expect(4).toBeGreaterThan(1);
+  expect(1).toBeLessThan(2);
+});
+
+test("compare object", () => {
+  expect({ name: "alex" }).toEqual({ name: "alex" });
+});
 ```
 
-you can see the @mixin and @include as a pair for using. 
-and they can help you to reduce the repeating code. 
+you can also use the following code
 
-
-## the inner function of scss 
-``` javascript
-@mixin button-style(
-  $hover-background: lighten($background, 7.5%),
-  $hover-border: lighten($border, 10%),
-) { 
-  ...
-}
 ```
-you can see the lighten function the the @mixin to control the color. 
-
-## expand the interface with native attributes （interface的扩展）
-key point: intersection type 
-```typescript
-// 获取html element中所有的button的属性
-type NativeBtnProps = React.ButtonHTMLAttributes<HTMLElement> & React.LinkHTMLAttributes<HTMLElement>
+npm test jest.test.js --watch
 ```
-Above will give you the INTERSECTION of two different types
-<br>
-合并类型：将两种属性合并成一种属性 
 
-## utilities type : help us to make type optional 
+it will keep watching the changes in the test file
 
-``` typescript 
-type NativeButtonProps = IButton & React.ButtonHTMLAttributes<HTMLElement>
-type NativeLinkProps = IButton & React.AnchorHTMLAttributes<HTMLElement>
+### note:
 
-type ButtonProps = Partial<NativeButtonProps & NativeLinkProps>
+tobe is exactly same, which means the reference is same. So, the type object is not suitable for tobe(). Now, we need the to equal
 
-export const Button: React.FC<ButtonProps> = ({
-}) => { ... } 
+## Part 2: install the react testing library (if you are using the new version, its then unnecessary)
+
+we will use the testing library to do the unit test
+
 ```
-Reason to do this, we only need one of the NativeButtonProps or the NativeLinkProps for a button component 
+npm install --save-dev @testing-library/react
+```
 
-### understand ...restProps for a function component 
+now, you can write you first element testing code
 
+```javascript
+import React from "react";
+import { render } from "@testing-library/react";
+import { Button } from "./Button";
 
+test("First test for button", () => {
+  const wrapper = render(<Button>hello</Button>);
+  const element = wrapper.queryByText("hello");
 
+  expect(element).toBeTruthy();
+});
+```
+
+_for the above code, you need to understand the render. Render will render a component._
+
+and run with
+
+```javascript
+npm test
+```
+
+## part 3: for more action and assertion , we need the jest-dom
+
+usually, you will find the "@testing-library/jest-dom" in you package.json
+
+create a setUpTests.ts under src with following code.
+
+```javascript
+import "@testing-library/jest-dom/extend-expect";
+```
+
+Then you will find you have more method in the test.tsx file
+
+now, we can put the test inside of a describe function, and use the jest-dom to do the test.
+
+```javascript
+describe("Is the button can rendered", () => {
+  test("should rendered a default button ", () => {
+    // render the component
+    const wrapper = render(<AppButton>hello</AppButton>);
+    const element = wrapper.getByText("hello");
+
+    // validation 1
+    expect(element).toBeInTheDocument();
+
+    // validation 2
+    expect(element.tagName).toEqual("BUTTON"); // ! Will transfer into upper case
+
+    // validation 3
+    expect(element).toHaveClass("btn");
+  });
+
+  test("should rendered a component with correct props", () => {});
+
+  test("should rendered a link component", () => {});
+});
+```
+
+understand the expect().toBeInTheDocument(); expect(.tagName).toEqual("..."); expect().toHaveClass("...")
