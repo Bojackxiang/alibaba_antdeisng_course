@@ -4,7 +4,7 @@ import MenuItem from './components/Menu/MenuItem'
 
 export const App = () => {
   return (
-    <Menu mode="vertical" >    
+    <Menu>    
       <MenuItem index={1}>first item</MenuItem>
       <MenuItem index={2}>second item</MenuItem>
     </Menu>

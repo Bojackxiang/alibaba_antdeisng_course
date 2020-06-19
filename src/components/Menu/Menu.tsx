@@ -9,7 +9,7 @@ interface IMenuContext {
 }
 export const menuContext = createContext<IMenuContext>({ index: 0 });
 
-interface IMenu {
+export interface IMenu {
   defaultIndex?: number;
   className?: string;
   mode?: MenuModeType | undefined | null;
@@ -43,7 +43,7 @@ const Menu: React.FC<IMenu> = (props: IMenu) => {
   };
 
   return (
-    <ul className={classes} style={style}>
+    <ul className={classes} style={style} data-testid="test-menu">
       <menuContext.Provider value={passedContext}>
         {children}
       </menuContext.Provider>

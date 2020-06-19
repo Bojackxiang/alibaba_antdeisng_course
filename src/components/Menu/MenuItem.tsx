@@ -20,7 +20,7 @@ const MenuItem:React.FC<IMenuItem> = (props) => {
 
     // setup the classes 
     const classes = classNames("menu-item", className, {
-        'is-disable': disabled,
+        'is-disabled': disabled,
         'is-active': context.index === index // if the index equals to the context.index: active
     })
 
