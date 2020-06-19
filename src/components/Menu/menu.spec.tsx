@@ -44,9 +44,12 @@ describe("Testing for menu and menu item", () => {
 
 
     test("render test", () => {
+      expect(menuElement)
+
       expect(wrapper.findAllByTestId.length).toEqual(3)
       expect(menuElement.getElementsByTagName("li").length).toEqual(2)
       expect(menuElement.getElementsByTagName("ul").length).toEqual(0) 
+
       // the above result is 0, is because it will only get the child element 
       expect(wrapper.findAllByTestId.length).toEqual(3)
       // the reason for above is 3 is because we cannot access to the ul, we only can get the child component in this way .
