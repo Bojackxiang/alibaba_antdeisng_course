@@ -153,3 +153,59 @@ Everything is similar with what we did before, but for the menu click, we need t
 
   });
 ```
+
+## part 4: Update menu : playing with the children 
+### Target 1: Display name for a component 
+
+### Target 2 : understand React.Children.map() React.FunctionComponentElement<Interface>
+
+### target 3: understanding the cloneElement(): insert index to child element of Menu
+
+
+For target 1 <br>
+In the Menu, we need to make sure all children element are MenuUtem component, so, we need to add a function to prevent Wrong children element  <br>
+这里，我们要确定menu里面的元素都是MenuItem，所以我们要在menu组建中添加一个判断 <br>
+
+For Target 2 <br>
+to receive the MenuItem element, we need the FunctionComponentElement to assert the child element; <br>
+``` typescript
+// Making sure the received child element are MenuItem component 
+  const renderChildren = () => {
+    return React.Children.map(children, (child, index) => {
+      const childElement = child as React.FunctionComponentElement<IMenuItem>
+      const {displayName} = childElement.type
+      
+      if(!displayName || displayName!== 'MenuItem') return console.error("Child element must be MenuItem")
+
+      return child;
+    })
+  }
+
+```
+Now replace the original children with the renderChildren(); <br>
+It can help you to prevent the wrong children element in the <Menu/> <br>
+
+
+For Target 4:  <br>
+Now we need put the index of children map function to the MenuItem element <br>
+So, we need to give the index in the React.Children.map to the child element, so we need to use the cloneElement to complete this action.  <br>
+```typescript 
+ // Making sure the received child element are MenuItem component 
+  const renderChildren = () => {
+    return React.Children.map(children, (child, index) => {
+      const childElement = child as React.FunctionComponentElement<IMenuItem>
+      const {displayName} = childElement.type
+      
+      if(!displayName || displayName!== 'MenuItem') return console.error("Child element must be MenuItem")
+
+      return React.cloneElement(childElement, {index}) // npt we cam give the index to the all MenuItem 
+    })
+  }
+```
+
+## part 5: 
+Now we are adding the sub-menu, it basically has the same logical with the menu item. 
+
+
+
+

@@ -1,1 +1,1 @@
-export type MenuModeType = 'vertical' | 'horizontal'
+export type MenuModeType = 'vertical' | 'horizontal' | null | undefined
