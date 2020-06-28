@@ -1,31 +1,60 @@
-import React, {ReactElement, ChangeEvent} from 'react'
-// import { IconProp } from '@fortawesome/fontawesome-svg-core'
+import React, {
+  ReactElement,
+  ChangeEvent,
+  CSSProperties,
+  InputHTMLAttributes,
+} from "react";
+import { IconProp } from "@fortawesome/fontawesome-svg-core";
+import classNames from "classnames";
+import Icon from "./Icon";
 
-
-type InputSize = 'lg' | 'sm'
-interface IForm {
-  /**是否禁用 Input */
+type InputSize = "lg" | "sm";
+export interface IForm extends Omit<InputHTMLAttributes<HTMLElement>, "size"> {
   disabled?: boolean;
-  /**设置 input 大小，支持 lg 或者是 sm */
   size?: InputSize;
-  /**添加图标，在右侧悬浮添加一个图标，用于提示 */
   icon?: IconProp;
-  /**添加前缀 用于配置一些固定组合 */
   prepend?: string | ReactElement;
-  /**添加后缀 用于配置一些固定组合 */
   append?: string | ReactElement;
-  onChange? : (e: ChangeEvent<HTMLInputElement>) => void;
+  style?: CSSProperties;
+  onChange?: (e: ChangeEvent<HTMLInputElement>) => void;
+  value?: string
 }
-const Form:React.FC<IForm> = (props) => {
-    const {} = props;
+const Form: React.FC<IForm> = (props) => {
+  const { disabled, size, icon, prepend, append, style, ...restProps } = props;
 
-    return (
-        <div>
-            
+  const cnames = classNames("viking-input-wrapper", {
+    [`input-size-${size}`]: size,
+    "is-disabled": disabled,
+    "input-group": prepend || append,
+    "input-group-append": !!append,
+    "input-group-prepend": !!prepend,
+  });
+
+  if ("value" in restProps) {
+    const value = restProps.value;
+    delete restProps.defaultValue; // input
+    restProps.value = (value === null || value === 'undefined') ? '' : value
+  }
+
+  return (
+    <div className={cnames} style={style}>
+      {prepend && <div className="viking-input-group-prepend">{prepend}</div>}
+      {icon && (
+        <div className="icon-wrapper">
+          <Icon icon={icon} title={`title-${icon}`} />
         </div>
-    )
-}
+      )}
+      <input
+        className="viking-input-inner"
+        disabled={disabled}
+        placeholder="test-input"
+        {...restProps}
+      />
+      {append && <div className="viking-input-group-append">{append}</div>}
+    </div>
+  );
+};
 
-Form.defaultProps = {}
+Form.defaultProps = {};
 
-export default Form
+export default Form;
