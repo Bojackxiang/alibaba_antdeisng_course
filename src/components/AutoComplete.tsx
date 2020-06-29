@@ -1,62 +1,75 @@
-import React, { useState, ChangeEvent, ReactElement, } from "react";
+import React, { useState, ChangeEvent, ReactElement } from "react";
 import Form, { IForm } from "./Form";
 
 export interface DataSource {
-  value: string; 
+  value: string;
 }
-export type DataSourceType<T> = T & DataSource 
+export type DataSourceType<T> = T & DataSource;
 
 export interface IAutoComplete extends Omit<IForm, "onSelect"> {
-  fetchSuggestion?: (snippet: string) => string[];
+  // fetchSuggestion?: (snippet: string) => string[];
+  fetchSuggestion?: (query: string) => Promise<any>;
   onSelect?: (item: string) => void;
   renderOptions?: (item: string) => ReactElement;
 }
 const AutoComplete: React.FC<IAutoComplete> = (props) => {
   // props
-  const { fetchSuggestion, onSelect, value, onChange, renderOptions, ...restProps } = props;
+  const {
+    fetchSuggestion,
+    onSelect,
+    value,
+    onChange,
+    renderOptions,
+    ...restProps
+  } = props;
 
   // holder for suggestions
   const [inputValue, setInputValue] = useState(value);
-  const [suggestion, setSuggestion] = useState<string[]>([]);
+  const [suggestion, setSuggestion] = useState<{ value: string }[]>([]);
+  const [loading, setLoading] = useState(false);
 
-  // handle input
+  // -> handle input
   const handlerInputChange = (e: ChangeEvent<HTMLInputElement>) => {
+    // get the string
+    
 
     const inputValue = e.target.value.trim();
     setInputValue(inputValue);
 
-    if (inputValue && fetchSuggestion) {
-      const suggestionList = fetchSuggestion(inputValue);
-
-      setSuggestion(suggestionList);
-    } else {
-      setSuggestion([]);
+    // handle the fetched result
+    if (fetchSuggestion) {
+      setLoading(true);
+      fetchSuggestion(inputValue).then((resp) => {
+        setSuggestion(resp);
+        setLoading(false);
+      });
     }
 
     if (onChange) {
       onChange(e);
     }
+
+    
   };
 
-  // handing item selected
+  // -> handing item selected
   const itemSelectHandler = (item: string) => {
-    setSuggestion([])
-    if(onSelect) onSelect(item);
+    setSuggestion([]);
+    if (onSelect) onSelect(item);
   };
-
 
   // -> render options
   const renderTemplate = (item: string) => {
-      if(!renderOptions) return item 
-      return renderOptions(item) ?? item
-  }
-  // -> COMPONENTS: generate a drop down component 
+    if (!renderOptions) return item;
+    return renderOptions(item) ?? item;
+  };
+  // -> COMPONENTS: generate a drop down component
   const generateDropDown = () => {
     return (
       <ul>
-        {suggestion.map((item: string) => (
-          <li key={item} onClick={() => itemSelectHandler(item)}>
-            {renderTemplate(item)}
+        {suggestion.map((item: { value: string }) => (
+          <li key={item.value} onClick={() => itemSelectHandler(item.value)}>
+            {renderTemplate(item.value)}
           </li>
         ))}
       </ul>
@@ -67,7 +80,7 @@ const AutoComplete: React.FC<IAutoComplete> = (props) => {
   return (
     <div className="viking-auto-conplete">
       <Form value={value} onChange={handlerInputChange} {...restProps} />
-
+      { loading === true ? <h1>loading</h1> : null}
       {generateDropDown()}
     </div>
   );
