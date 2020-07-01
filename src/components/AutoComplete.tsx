@@ -1,5 +1,9 @@
-import React, { useState, ChangeEvent, ReactElement } from "react";
+import React, { useState, ChangeEvent, ReactElement, useEffect, useRef } from "react";
 import Form, { IForm } from "./Form";
+import useDebounce from "./hooks/useDebounce";
+import useClickOutSide from "./hooks/useClickOutSide";
+
+
 
 export interface DataSource {
   value: string;
@@ -27,29 +31,38 @@ const AutoComplete: React.FC<IAutoComplete> = (props) => {
   const [inputValue, setInputValue] = useState(value);
   const [suggestion, setSuggestion] = useState<{ value: string }[]>([]);
   const [loading, setLoading] = useState(false);
+  const componentRef = useRef<HTMLDivElement>(null)
 
-  // -> handle input
+  const debounceValue = useDebounce(inputValue, 500)
+  useClickOutSide(componentRef, () => {
+    // setSuggestion([])
+    console.log('object')
+  })
+
+  // -> use effect : debounce 
+  useEffect(() => {
+    if(debounceValue && fetchSuggestion){
+      console.log('triggered ...')
+      fetchSuggestion(debounceValue).then((resp) => {
+        setSuggestion(resp);
+        
+      });
+    }
+    setLoading(false);
+  }, [debounceValue])
+
+
+  // -> handling  input change
   const handlerInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     // get the string
-    
+    setLoading(true)
 
     const inputValue = e.target.value.trim();
     setInputValue(inputValue);
 
-    // handle the fetched result
-    if (fetchSuggestion) {
-      setLoading(true);
-      fetchSuggestion(inputValue).then((resp) => {
-        setSuggestion(resp);
-        setLoading(false);
-      });
+    if(onChange) {
+      onChange(e)
     }
-
-    if (onChange) {
-      onChange(e);
-    }
-
-    
   };
 
   // -> handing item selected
@@ -58,14 +71,15 @@ const AutoComplete: React.FC<IAutoComplete> = (props) => {
     if (onSelect) onSelect(item);
   };
 
-  // -> render options
+  // -> RENDER COMPONENTS: 
   const renderTemplate = (item: string) => {
     if (!renderOptions) return item;
     return renderOptions(item) ?? item;
   };
-  // -> COMPONENTS: generate a drop down component
+
+  // -> RENDER COMPONENTS: generate a drop down component
   const generateDropDown = () => {
-    return (
+    return (   
       <ul>
         {suggestion.map((item: { value: string }) => (
           <li key={item.value} onClick={() => itemSelectHandler(item.value)}>
@@ -78,9 +92,9 @@ const AutoComplete: React.FC<IAutoComplete> = (props) => {
 
   // returned component
   return (
-    <div className="viking-auto-conplete">
+    <div className="viking-auto-conplete" ref={componentRef}>
       <Form value={value} onChange={handlerInputChange} {...restProps} />
-      { loading === true ? <h1>loading</h1> : null}
+      {loading === true ? <h1>loading</h1> : null}
       {generateDropDown()}
     </div>
   );

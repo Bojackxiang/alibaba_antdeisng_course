@@ -24,7 +24,8 @@ export const App = () => {
     
     return fetch(`https://api.github.com/search/users?q=${query}`)
       .then((resp) => resp.json())
-      .then(({ items }) => {
+      .then(({ items }) => {     
+        if(!items) return new Promise((resolve) => {resolve([])})
         const formatedData = items.slice(0, 10).map((item: any) => {
           return { value: item.login };
         });
