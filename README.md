@@ -32,3 +32,40 @@ Axios.post("https://jsonplaceholder.typicode.com/posts", formData, {
   console.log(resp);
 });
 ```
+
+## Adding beforeUploading and onChange functionalities
+
+These two section is very easy, and you can check the code directly.
+
+One thing need to pay attention to is that we can put a function into a setState function
+
+```typescript
+setState((prevState) => {
+  // the prevState is the current value
+  console.log(prevState, prevState + 1);
+  return prevState + 1;
+});
+```
+Be careful: if the state is same, the react will ignore it.
+The orgithms they use is Object.is
+For the object is, 
+you can check the following 
+``` javascript
+Object.is('foo', 'foo');     // true
+Object.is(window, window);   // true
+
+Object.is('foo', 'bar');     // false
+Object.is([], []);           // false
+
+var foo = { a: 1 };
+var bar = { a: 1 };
+Object.is(foo, foo);         // true
+Object.is(foo, bar);         // false
+
+Object.is(null, null);       // true
+
+// Special Cases
+Object.is(0, -0);            // false
+Object.is(-0, -0);           // true
+Object.is(NaN, 0/0);         // true
+```
