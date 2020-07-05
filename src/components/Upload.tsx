@@ -1,4 +1,10 @@
-import React, { useEffect, useState, ChangeEvent, useRef } from "react";
+import React, {
+  useEffect,
+  useState,
+  ChangeEvent,
+  useRef,
+  DragEvent,
+} from "react";
 import Axios from "axios";
 
 export interface IUpload {
@@ -7,16 +13,33 @@ export interface IUpload {
   onSuccess?: (data: any, file: File) => void;
   onError?: (err: any, file: File) => void;
   beforeUpload?: (file: File) => boolean | Promise<File>;
-  onChange? : (file: File) => void
+  onChange?: (file: File) => void;
+  header?: { [key: string]: string }; //customized header
+  name?: string;
+  data?: string;
+  withCrediential?: boolean;
+  drag?: boolean;
 }
 
 const Upload: React.FC<IUpload> = (props) => {
-  const { action, onProgress, onSuccess, onError, beforeUpload, onChange } = props;
+  const {
+    action,
+    onProgress,
+    onSuccess,
+    onError,
+    beforeUpload,
+    onChange,
+    header,
+    name,
+    data,
+    withCrediential,
+  } = props;
 
   const inputRef = useRef<HTMLInputElement>(null);
 
   const [title, setTitle] = useState<string>("");
-  const [text, setText] = useState<string | []>("")
+  const [text, setText] = useState<string | []>("");
+  const [isDragOver, setIsDragOver] = useState(false);
 
   const postData = { title: "hello world", value: "this is a title" };
 
@@ -59,34 +82,40 @@ const Upload: React.FC<IUpload> = (props) => {
 
     // -> Putting water (data) into the cup (FormData)
     postData.forEach((file) => {
-      if(!beforeUpload){
-        uploadFile(file)
-      }else {
-        const result = beforeUpload(file)
-        
-        if(!result || !(result instanceof Promise)) return 
-        
-        result.then(processedFile => {
-          uploadFile(processedFile)
-        })
+      if (!beforeUpload) {
+        uploadFile(file);
+      } else {
+        const result = beforeUpload(file);
+
+        if (!result || !(result instanceof Promise)) return;
+
+        result.then((processedFile) => {
+          uploadFile(processedFile);
+        });
       }
 
-      if(onChange){
+      if (onChange) {
         onChange(file);
       }
-      
     });
   };
 
   const uploadFile = (file: File) => {
     const formData = new FormData();
-    formData.append(file.name, file);
+    formData.append(name || file.name, file);
+    if (data) {
+      Object.keys(data).forEach((key: any) => {
+        formData.append(key, data[key]);
+      });
+    }
 
     // -> start to upload file to the target website
     Axios.post("https://jsonplaceholder.typicode.com/posts/", formData, {
       headers: {
+        ...header,
         "Content-Type": "multipart/form-data",
       },
+      withCredentials: withCrediential,
       onUploadProgress: (e: any) => {
         let percentage = Math.round((e.loaded * 100) / e.total) || 0;
         if (percentage < 100) {
@@ -108,8 +137,35 @@ const Upload: React.FC<IUpload> = (props) => {
       });
   };
 
+  const drager = (e: DragEvent<HTMLElement>, param: boolean) => {
+    e.preventDefault();
+    setIsDragOver(() => {
+      return param;
+    });
+  };
+
+  const onDrophandler = (e: DragEvent<HTMLElement>) => {
+    e.preventDefault();
+    const targetFileList = e.dataTransfer.files;
+    console.log(targetFileList);
+  };
+
   return (
     <div className="viking-upload-component">
+      <div
+        style={{ width: 200, height: 200, background: "pink" }}
+        onDragOver={(e: DragEvent<HTMLElement>) => {
+          drager(e, true);
+        }}
+        onDragLeave={(e: DragEvent<HTMLElement>) => {
+          drager(e, false);
+        }}
+        onDrop={(e: DragEvent<HTMLElement>) => {
+          onDrophandler(e);
+        }}
+      >
+        <h2>{isDragOver ? "true" : "false"}</h2>
+      </div>
       <button onClick={_clickHandler}>upload file</button>
       <input
         style={{ display: "none" }}
@@ -119,6 +175,11 @@ const Upload: React.FC<IUpload> = (props) => {
       />
     </div>
   );
+};
+
+Upload.defaultProps = {
+  name: "default file name",
+  drag: false,
 };
 
 export default Upload;

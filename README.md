@@ -33,6 +33,14 @@ Axios.post("https://jsonplaceholder.typicode.com/posts", formData, {
 });
 ```
 
+Note: sometimes, we amy want a function to return a Promise data, beside using rxgs, we can just use the following
+```javascript
+return Promise.resolve([...])
+```
+Usually, return will only be a promise, but for new a promise, it is a constructor, so its different concept. 
+One is just a promise, one is a new promise. So, here, we only need it to return a promise, rather than a new promise. 
+
+
 ## Adding beforeUploading and onChange functionalities
 
 These two section is very easy, and you can check the code directly.
@@ -46,26 +54,74 @@ setState((prevState) => {
   return prevState + 1;
 });
 ```
+
 Be careful: if the state is same, the react will ignore it.
 The orgithms they use is Object.is
-For the object is, 
-you can check the following 
-``` javascript
-Object.is('foo', 'foo');     // true
-Object.is(window, window);   // true
+For the object is,
+you can check the following
 
-Object.is('foo', 'bar');     // false
-Object.is([], []);           // false
+```javascript
+Object.is("foo", "foo"); // true
+Object.is(window, window); // true
+
+Object.is("foo", "bar"); // false
+Object.is([], []); // false
 
 var foo = { a: 1 };
 var bar = { a: 1 };
-Object.is(foo, foo);         // true
-Object.is(foo, bar);         // false
+Object.is(foo, foo); // true
+Object.is(foo, bar); // false
 
-Object.is(null, null);       // true
+Object.is(null, null); // true
 
 // Special Cases
-Object.is(0, -0);            // false
-Object.is(-0, -0);           // true
-Object.is(NaN, 0/0);         // true
+Object.is(0, -0); // false
+Object.is(-0, -0); // true
+Object.is(NaN, 0 / 0); // true
 ```
+
+### Now we want to add more customized values for the upload component
+
+### Now we adding an drag event for the component
+In the following code, just need to pay attention for the 
+1. "onDragOver"
+2. "onDragLeave"
+3. "onDrop"
+
+```tsx
+    
+    <div className="viking-upload-component">
+      <div
+        onDragOver={(e: DragEvent<HTMLElement>) => {
+          drager(e, true);
+        }}
+        onDragLeave={(e: DragEvent<HTMLElement>) => {
+          drager(e, false);
+        }}
+        onDrop={(e: DragEvent<HTMLElement>) => {
+          onDrophandler(e);
+        }}
+      >
+        <h2>{isDragOver ? "true" : "false"}</h2>
+      </div>
+      <button onClick={_clickHandler}>upload file</button>
+      <input
+        style={{ display: "none" }}
+        type="file"
+        ref={inputRef}
+        onChange={_fileChangeHandler}
+      />
+    </div>
+```
+
+Then, we need to obtain the target file from the onDrop handler 
+
+``` typescript
+  const onDrophandler = (e: DragEvent<HTMLElement>) => {
+    e.preventDefault();
+    const targetFileList = e.dataTransfer.files;
+    console.log(targetFileList);
+  };
+```
+Paying attention to the following line
+`e.data.transfer.data`, you will get the target file, the obtain part is still a FileList type data. 
