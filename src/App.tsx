@@ -1,5 +1,6 @@
 import React from "react";
-import Upload from "./components/Upload";
+// import Upload from "./components/Upload";
+import { Upload } from "alibaba_antdesign_course";
 
 interface IApp {}
 export const App: React.FC<IApp> = ({}) => {
@@ -9,7 +10,7 @@ export const App: React.FC<IApp> = ({}) => {
   };
 
   const onError = (error: any, file: File) => {
-    console.log('failure')
+    console.log("failure");
     console.log(error);
   };
 
@@ -20,7 +21,7 @@ export const App: React.FC<IApp> = ({}) => {
   const beforeUpload = (file: File) => {
     if (file.size / 1024 > 50) {
       alert("file is to big");
-      return false; 
+      return false;
     } else {
       return Promise.resolve(file);
     }
@@ -34,7 +35,6 @@ export const App: React.FC<IApp> = ({}) => {
         onError={onError}
         beforeUpload={beforeUpload}
         action="string"
-
       />
     </div>
   );

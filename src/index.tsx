@@ -9,3 +9,6 @@ ReactDOM.render(
   </React.StrictMode>,
   document.getElementById("root")
 );
+
+
+// export {default as Upload} from './components/Upload' // exporting the Upload component from project
